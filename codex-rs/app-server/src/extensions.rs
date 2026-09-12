@@ -64,8 +64,8 @@ where
         goal_service,
         environment_manager: _environment_manager,
         executor_skill_provider,
-        git_attribution_base_url,
-        http_client_factory,
+        git_attribution_base_url: _git_attribution_base_url,
+        http_client_factory: _http_client_factory,
         thread_store: _thread_store,
     } = dependencies;
     let mut builder = ExtensionRegistryBuilder::<Config>::with_event_sink(event_sink);
@@ -80,11 +80,15 @@ where
             |config: &Config| config.features.enabled(codex_features::Feature::Goals),
         );
     }
+    #[cfg(all(
+        feature = "git-attribution-extension",
+        not(feature = "tapfuture-minimal")
+    ))]
     codex_git_attribution::install(
         &mut builder,
         auth_manager.clone(),
-        git_attribution_base_url,
-        http_client_factory,
+        _git_attribution_base_url,
+        _http_client_factory,
     );
     codex_guardian::install(&mut builder, guardian_agent_spawner);
     #[cfg(all(feature = "memories-extension", not(feature = "tapfuture-minimal")))]

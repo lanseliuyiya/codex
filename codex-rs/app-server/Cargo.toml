@@ -5,12 +5,19 @@ edition.workspace = true
 license.workspace = true
 
 [features]
-default = ["external-agent-migration", "feedback", "plugin-mcp", "memories-extension"]
+default = [
+    "external-agent-migration",
+    "feedback",
+    "plugin-mcp",
+    "memories-extension",
+    "git-attribution-extension",
+]
 tapfuture-minimal = ["codex-app-server-transport/tapfuture-minimal"]
 external-agent-migration = ["dep:codex-external-agent-migration"]
 feedback = ["dep:codex-feedback"]
 plugin-mcp = ["dep:codex-mcp-extension"]
 memories-extension = ["dep:codex-memories-extension"]
+git-attribution-extension = ["dep:codex-git-attribution"]
 
 [[bin]]
 name = "codex-app-server"
@@ -56,7 +63,7 @@ codex-extension-api = { workspace = true }
 codex-external-agent-migration = { workspace = true, optional = true }
 codex-features = { workspace = true }
 codex-goal-extension = { workspace = true }
-codex-git-attribution = { workspace = true }
+codex-git-attribution = { workspace = true, optional = true }
 codex-guardian = { workspace = true }
 codex-git-utils = { workspace = true }
 codex-file-watcher = { workspace = true }
