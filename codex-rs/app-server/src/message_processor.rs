@@ -31,7 +31,7 @@ use crate::request_processors::CatalogRequestProcessor;
 use crate::request_processors::CommandExecRequestProcessor;
 use crate::request_processors::ConfigRequestProcessor;
 use crate::request_processors::EnvironmentRequestProcessor;
-#[cfg(not(feature = "tapfuture-minimal"))]
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use crate::request_processors::FeedbackRequestProcessor;
 use crate::request_processors::FsRequestProcessor;
 use crate::request_processors::GitRequestProcessor;
@@ -77,7 +77,7 @@ use codex_code_mode::CodeModeSessionProvider;
 use codex_core::ThreadManager;
 use codex_core::config::Config;
 use codex_exec_server::EnvironmentManager;
-#[cfg(not(feature = "tapfuture-minimal"))]
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use codex_feedback::CodexFeedback;
 use codex_goal_extension::GoalService;
 use codex_home::CodexHomeUserInstructionsProvider;
@@ -121,7 +121,7 @@ pub(crate) struct MessageProcessor {
     environment_processor: EnvironmentRequestProcessor,
     #[cfg(feature = "external-agent-migration")]
     external_agent_config_processor: ExternalAgentConfigRequestProcessor,
-    #[cfg(not(feature = "tapfuture-minimal"))]
+    #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
     feedback_processor: FeedbackRequestProcessor,
     fs_processor: FsRequestProcessor,
     git_processor: GitRequestProcessor,
@@ -224,7 +224,7 @@ pub(crate) struct MessageProcessorArgs {
     pub(crate) config: Arc<Config>,
     pub(crate) config_manager: ConfigManager,
     pub(crate) environment_manager: Arc<EnvironmentManager>,
-    #[cfg(not(feature = "tapfuture-minimal"))]
+    #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
     pub(crate) feedback: CodexFeedback,
     pub(crate) log_db: Option<LogDbLayer>,
     pub(crate) state_db: Option<StateDbHandle>,
@@ -251,7 +251,7 @@ impl MessageProcessor {
             config,
             config_manager,
             environment_manager,
-            #[cfg(not(feature = "tapfuture-minimal"))]
+            #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
             feedback,
             log_db,
             state_db,
@@ -401,7 +401,7 @@ impl MessageProcessor {
             outgoing.clone(),
             Arc::clone(&environment_manager_for_requests),
         );
-        #[cfg(not(feature = "tapfuture-minimal"))]
+        #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
         let feedback_processor = FeedbackRequestProcessor::new(
             auth_manager.clone(),
             Arc::clone(&thread_manager),
@@ -535,7 +535,7 @@ impl MessageProcessor {
             environment_processor,
             #[cfg(feature = "external-agent-migration")]
             external_agent_config_processor,
-            #[cfg(not(feature = "tapfuture-minimal"))]
+            #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
             feedback_processor,
             fs_processor,
             git_processor,
@@ -1546,7 +1546,7 @@ impl MessageProcessor {
                     .process_resize_pty(request_id.clone(), params)
                     .await
             }
-            #[cfg(not(feature = "tapfuture-minimal"))]
+            #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
             ClientRequest::FeedbackUpload { params, .. } => {
                 self.feedback_processor.feedback_upload(params).await
             }

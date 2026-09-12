@@ -53,6 +53,7 @@ use codex_config::LoaderOverrides;
 use codex_core::ARCHIVED_SESSIONS_SUBDIR;
 use codex_core::config::ConfigBuilder;
 use codex_exec_server::EnvironmentManager;
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use codex_feedback::CodexFeedback;
 use codex_protocol::items::AgentMessageContent;
 use codex_protocol::items::AgentMessageItem;
@@ -726,6 +727,7 @@ async fn thread_turns_list_reads_store_history_without_rollout_path() -> Result<
         strict_config: false,
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         thread_config_loader: Arc::new(codex_config::NoopThreadConfigLoader),
+        #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
         feedback: CodexFeedback::new(),
         log_db: None,
         state_db: None,
@@ -796,6 +798,7 @@ async fn thread_read_loaded_include_turns_reads_store_history_without_rollout_pa
         strict_config: false,
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         thread_config_loader: Arc::new(codex_config::NoopThreadConfigLoader),
+        #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
         feedback: CodexFeedback::new(),
         log_db: None,
         state_db: None,
@@ -904,6 +907,7 @@ async fn thread_list_includes_store_thread_without_rollout_path() -> Result<()> 
         strict_config: false,
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         thread_config_loader: Arc::new(codex_config::NoopThreadConfigLoader),
+        #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
         feedback: CodexFeedback::new(),
         log_db: None,
         state_db: None,

@@ -84,6 +84,7 @@ use codex_core::check_execpolicy_for_warnings;
 use codex_core::config::Config;
 use codex_core::resolve_installation_id;
 use codex_exec_server::EnvironmentManager;
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use codex_feedback::CodexFeedback;
 use codex_login::AuthManager;
 use codex_protocol::protocol::SessionSource;
@@ -134,6 +135,7 @@ pub struct InProcessStartArgs {
     /// Loader used to fetch typed thread config sources before a thread starts.
     pub thread_config_loader: Arc<dyn ThreadConfigLoader>,
     /// Feedback sink used by app-server/core telemetry and logs.
+    #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
     pub feedback: CodexFeedback,
     /// SQLite tracing layer used to flush recently emitted logs before feedback upload.
     pub log_db: Option<LogDbLayer>,
@@ -465,7 +467,7 @@ async fn start_uninitialized(args: InProcessStartArgs) -> IoResult<InProcessClie
                 config: args.config,
                 config_manager,
                 environment_manager: args.environment_manager,
-                #[cfg(not(feature = "tapfuture-minimal"))]
+                #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
                 feedback: args.feedback,
                 log_db: args.log_db,
                 state_db: args.state_db,
@@ -827,6 +829,7 @@ mod tests {
             strict_config: false,
             cloud_config_bundle: CloudConfigBundleLoader::default(),
             thread_config_loader: Arc::new(codex_config::NoopThreadConfigLoader),
+            #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
             feedback: CodexFeedback::new(),
             log_db: None,
             state_db: Some(state_db),

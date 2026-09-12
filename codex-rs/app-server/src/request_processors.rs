@@ -389,7 +389,7 @@ use codex_exec_server::LOCAL_FS;
 use codex_features::FEATURES;
 use codex_features::Feature;
 use codex_features::Stage;
-#[cfg(not(feature = "tapfuture-minimal"))]
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use codex_feedback::{CodexFeedback, FeedbackAttachmentPath, FeedbackUploadOptions};
 use codex_git_utils::git_diff_to_remote;
 use codex_git_utils::resolve_root_git_project_for_trust;
@@ -529,9 +529,9 @@ mod catalog_processor;
 mod command_exec_processor;
 mod config_processor;
 mod environment_processor;
-#[cfg(not(feature = "tapfuture-minimal"))]
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 mod feedback_doctor_report;
-#[cfg(not(feature = "tapfuture-minimal"))]
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 mod feedback_processor;
 mod fs_processor;
 mod git_processor;
@@ -560,7 +560,7 @@ pub(crate) use catalog_processor::CatalogRequestProcessor;
 pub(crate) use command_exec_processor::CommandExecRequestProcessor;
 pub(crate) use config_processor::ConfigRequestProcessor;
 pub(crate) use environment_processor::EnvironmentRequestProcessor;
-#[cfg(not(feature = "tapfuture-minimal"))]
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 pub(crate) use feedback_processor::FeedbackRequestProcessor;
 pub(crate) use fs_processor::FsRequestProcessor;
 pub(crate) use git_processor::GitRequestProcessor;

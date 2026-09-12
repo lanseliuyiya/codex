@@ -28,7 +28,7 @@ use codex_config::LoaderOverrides;
 use codex_core::config::Config;
 use codex_core::config::ConfigBuilder;
 use codex_exec_server::EnvironmentManager;
-#[cfg(not(feature = "tapfuture-minimal"))]
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use codex_feedback::CodexFeedback;
 use codex_login::AuthManager;
 use codex_protocol::protocol::SessionSource;
@@ -258,7 +258,7 @@ async fn build_test_processor(
         config,
         config_manager,
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
-        #[cfg(not(feature = "tapfuture-minimal"))]
+        #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
         feedback: CodexFeedback::new(),
         log_db: None,
         state_db: None,

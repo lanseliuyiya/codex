@@ -34,6 +34,7 @@ use codex_core::config::ConfigBuilder;
 use codex_core::find_archived_thread_path_by_id_str;
 use codex_core::find_thread_path_by_id_str;
 use codex_exec_server::EnvironmentManager;
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use codex_feedback::CodexFeedback;
 use codex_protocol::ThreadId;
 use codex_protocol::models::BaseInstructions;
@@ -294,6 +295,7 @@ async fn thread_unarchive_preserves_pathless_store_metadata() -> Result<()> {
         strict_config: false,
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         thread_config_loader: Arc::new(codex_config::NoopThreadConfigLoader),
+        #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
         feedback: CodexFeedback::new(),
         log_db: None,
         state_db: None,

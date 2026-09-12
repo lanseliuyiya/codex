@@ -53,6 +53,7 @@ use codex_core::config::Config;
 use codex_core::config::ConfigBuilder;
 use codex_exec_server::EnvironmentManager;
 use codex_features::Feature;
+#[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
 use codex_feedback::CodexFeedback;
 use codex_protocol::ThreadId;
 use codex_protocol::models::BaseInstructions;
@@ -451,6 +452,7 @@ async fn start_in_process_client(
         strict_config: false,
         cloud_config_bundle: CloudConfigBundleLoader::default(),
         thread_config_loader: Arc::new(NoopThreadConfigLoader),
+        #[cfg(all(feature = "feedback", not(feature = "tapfuture-minimal")))]
         feedback: CodexFeedback::new(),
         log_db: None,
         state_db: None,
