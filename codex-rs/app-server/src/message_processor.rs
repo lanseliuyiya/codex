@@ -42,6 +42,7 @@ use crate::request_processors::McpRequestProcessor;
 #[cfg(not(feature = "tapfuture-minimal"))]
 use crate::request_processors::PluginRequestProcessor;
 use crate::request_processors::ProcessExecRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::request_processors::RemoteControlRequestProcessor;
 use crate::request_processors::SearchRequestProcessor;
 use crate::request_processors::ThreadGoalRequestProcessor;
@@ -55,6 +56,7 @@ use crate::skills_watcher::SkillsWatcher;
 use crate::thread_state::ConnectionCapabilities;
 use crate::thread_state::ThreadStateManager;
 use crate::transport::AppServerTransport;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::transport::RemoteControlHandle;
 use codex_analytics::AnalyticsEventsClient;
 use codex_analytics::AppServerRpcTransport;
@@ -129,6 +131,7 @@ pub(crate) struct MessageProcessor {
     mcp_processor: McpRequestProcessor,
     #[cfg(not(feature = "tapfuture-minimal"))]
     plugin_processor: PluginRequestProcessor,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     remote_control_processor: RemoteControlRequestProcessor,
     search_processor: SearchRequestProcessor,
     thread_goal_processor: ThreadGoalRequestProcessor,
@@ -231,6 +234,7 @@ pub(crate) struct MessageProcessorArgs {
     pub(crate) installation_id: String,
     pub(crate) code_mode_session_provider: Option<Arc<dyn CodeModeSessionProvider>>,
     pub(crate) rpc_transport: AppServerRpcTransport,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     pub(crate) remote_control_handle: Option<RemoteControlHandle>,
     #[cfg(not(feature = "tapfuture-minimal"))]
     pub(crate) plugin_startup_tasks: crate::PluginStartupTasks,
@@ -257,6 +261,7 @@ impl MessageProcessor {
             installation_id,
             code_mode_session_provider,
             rpc_transport,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             remote_control_handle,
             #[cfg(not(feature = "tapfuture-minimal"))]
             plugin_startup_tasks,
@@ -435,6 +440,7 @@ impl MessageProcessor {
             workspace_settings_cache,
             on_effective_plugins_changed,
         );
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let remote_control_processor = RemoteControlRequestProcessor::new(remote_control_handle);
         let search_processor = SearchRequestProcessor::new(outgoing.clone());
         let thread_goal_processor = ThreadGoalRequestProcessor::new(
@@ -539,6 +545,7 @@ impl MessageProcessor {
             mcp_processor,
             #[cfg(not(feature = "tapfuture-minimal"))]
             plugin_processor,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             remote_control_processor,
             search_processor,
             thread_goal_processor,
@@ -974,6 +981,7 @@ impl MessageProcessor {
                     .experimental_feature_enablement_set(request_id.clone(), params)
                     .await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::RemoteControlEnable { params, .. } => self
                 .remote_control_processor
                 .enable(
@@ -982,6 +990,7 @@ impl MessageProcessor {
                 )
                 .await
                 .map(|response| Some(response.into())),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::RemoteControlDisable { params, .. } => self
                 .remote_control_processor
                 .disable(
@@ -990,25 +999,30 @@ impl MessageProcessor {
                 )
                 .await
                 .map(|response| Some(response.into())),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::RemoteControlStatusRead { .. } => self
                 .remote_control_processor
                 .status_read()
                 .map(|response| Some(response.into())),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::RemoteControlPairingStart { params, .. } => self
                 .remote_control_processor
                 .pairing_start(params, app_server_client_name.as_deref())
                 .await
                 .map(|response| Some(response.into())),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::RemoteControlPairingStatus { params, .. } => self
                 .remote_control_processor
                 .pairing_status(params)
                 .await
                 .map(|response| Some(response.into())),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::RemoteControlClientsList { params, .. } => self
                 .remote_control_processor
                 .clients_list(params)
                 .await
                 .map(|response| Some(response.into())),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::RemoteControlClientsRevoke { params, .. } => self
                 .remote_control_processor
                 .clients_revoke(params)
@@ -1555,9 +1569,16 @@ impl MessageProcessor {
             | ClientRequest::AppsInstalled { .. }
             | ClientRequest::PluginInstall { .. }
             | ClientRequest::PluginUninstall { .. }
-            | ClientRequest::FeedbackUpload { .. } => Err(crate::error_code::method_not_found(
-                "method is disabled in tapfuture-minimal",
-            )),
+            | ClientRequest::FeedbackUpload { .. }
+            | ClientRequest::RemoteControlEnable { .. }
+            | ClientRequest::RemoteControlDisable { .. }
+            | ClientRequest::RemoteControlStatusRead { .. }
+            | ClientRequest::RemoteControlPairingStart { .. }
+            | ClientRequest::RemoteControlPairingStatus { .. }
+            | ClientRequest::RemoteControlClientsList { .. }
+            | ClientRequest::RemoteControlClientsRevoke { .. } => Err(
+                crate::error_code::method_not_found("method is disabled in tapfuture-minimal"),
+            ),
         };
 
         match result {

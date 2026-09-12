@@ -18,11 +18,17 @@ pub(crate) use codex_app_server_transport::ConnectionId;
 pub(crate) use codex_app_server_transport::ConnectionOrigin;
 pub(crate) use codex_app_server_transport::OutgoingMessage;
 pub(crate) use codex_app_server_transport::QueuedOutgoingMessage;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use codex_app_server_transport::RemoteControlEnableError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use codex_app_server_transport::RemoteControlHandle;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use codex_app_server_transport::RemoteControlPolicy;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use codex_app_server_transport::RemoteControlStartConfig;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use codex_app_server_transport::RemoteControlStartupMode;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use codex_app_server_transport::RemoteControlUnavailable;
 pub(crate) use codex_app_server_transport::TransportEvent;
 pub(crate) use codex_app_server_transport::acquire_app_server_startup_lock;
@@ -31,9 +37,11 @@ pub(crate) use codex_app_server_transport::app_server_startup_lock_path;
 pub use codex_app_server_transport::auth;
 pub(crate) use codex_app_server_transport::prepare_control_socket_path;
 pub(crate) use codex_app_server_transport::start_control_socket_acceptor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use codex_app_server_transport::start_remote_control;
 pub(crate) use codex_app_server_transport::start_stdio_connection;
 pub(crate) use codex_app_server_transport::start_websocket_acceptor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use codex_app_server_transport::take_remote_control_disabled_env;
 
 pub(crate) struct ConnectionState {

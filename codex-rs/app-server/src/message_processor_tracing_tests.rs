@@ -268,6 +268,7 @@ async fn build_test_processor(
         installation_id: "11111111-1111-4111-8111-111111111111".to_string(),
         code_mode_session_provider: None,
         rpc_transport: AppServerRpcTransport::Stdio,
+        #[cfg(not(feature = "tapfuture-minimal"))]
         remote_control_handle: None,
         #[cfg(not(feature = "tapfuture-minimal"))]
         plugin_startup_tasks: crate::PluginStartupTasks::Start,

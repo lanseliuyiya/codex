@@ -475,6 +475,7 @@ async fn start_uninitialized(args: InProcessStartArgs) -> IoResult<InProcessClie
                 installation_id,
                 code_mode_session_provider: None,
                 rpc_transport: AppServerRpcTransport::InProcess,
+                #[cfg(not(feature = "tapfuture-minimal"))]
                 remote_control_handle: None,
                 #[cfg(not(feature = "tapfuture-minimal"))]
                 plugin_startup_tasks: crate::PluginStartupTasks::Start,

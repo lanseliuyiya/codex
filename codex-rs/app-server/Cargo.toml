@@ -6,7 +6,7 @@ license.workspace = true
 
 [features]
 default = ["external-agent-migration"]
-tapfuture-minimal = []
+tapfuture-minimal = ["codex-app-server-transport/tapfuture-minimal"]
 external-agent-migration = ["dep:codex-external-agent-migration"]
 
 [[bin]]

@@ -61,6 +61,7 @@ mod rate_limit_reset_credits;
 mod rate_limits;
 mod realtime_conversation;
 mod recommended_plugins;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod remote_control;
 #[cfg(debug_assertions)]
 mod remote_thread_store;

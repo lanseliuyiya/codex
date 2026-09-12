@@ -24,6 +24,7 @@ use tracing::warn;
 /// plenty for an interactive CLI.
 pub const CHANNEL_CAPACITY: usize = 128;
 
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod remote_control;
 mod stdio;
 mod unix_socket;
@@ -31,16 +32,27 @@ mod unix_socket;
 mod unix_socket_tests;
 mod websocket;
 
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::REMOTE_CONTROL_DISABLED_ENV_VAR;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::RemoteControlDisabledByRequirements;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::RemoteControlEnableError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::RemoteControlHandle;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::RemoteControlPolicy;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::RemoteControlStartConfig;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::RemoteControlStartupMode;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::RemoteControlUnavailable;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::start_remote_control;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use remote_control::take_remote_control_disabled_env;
+
 pub use stdio::start_stdio_connection;
 pub use unix_socket::AppServerStartupLock;
 pub use unix_socket::acquire_app_server_startup_lock;

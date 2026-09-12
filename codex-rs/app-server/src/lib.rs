@@ -36,7 +36,9 @@ use crate::transport::CHANNEL_CAPACITY;
 use crate::transport::ConnectionOrigin;
 use crate::transport::ConnectionState;
 use crate::transport::OutboundConnectionState;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::transport::RemoteControlPolicy;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::transport::RemoteControlStartConfig;
 use crate::transport::TransportEvent;
 use crate::transport::acquire_app_server_startup_lock;
@@ -45,12 +47,14 @@ use crate::transport::auth::policy_from_settings;
 use crate::transport::prepare_control_socket_path;
 use crate::transport::route_outgoing_envelope;
 use crate::transport::start_control_socket_acceptor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::transport::start_remote_control;
 use crate::transport::start_stdio_connection;
 use crate::transport::start_websocket_acceptor;
 use codex_analytics::AppServerRpcTransport;
 use codex_app_server_protocol::ConfigWarningNotification;
 use codex_app_server_protocol::JSONRPCMessage;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_app_server_protocol::ServerNotification;
 use codex_app_server_protocol::TextPosition as AppTextPosition;
 use codex_app_server_protocol::TextRange as AppTextRange;
@@ -128,11 +132,13 @@ pub use crate::code_mode_host::CodeModeHostTransport;
 pub use crate::error_code::INPUT_TOO_LARGE_ERROR_CODE;
 pub use crate::error_code::INVALID_PARAMS_ERROR_CODE;
 pub use crate::transport::AppServerTransport;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use crate::transport::RemoteControlStartupMode;
 pub use crate::transport::app_server_control_socket_path;
 pub use crate::transport::auth::AppServerWebsocketAuthArgs;
 pub use crate::transport::auth::AppServerWebsocketAuthSettings;
 pub use crate::transport::auth::WebsocketAuthCliMode;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub use crate::transport::take_remote_control_disabled_env;
 
 const LOG_FORMAT_ENV_VAR: &str = "LOG_FORMAT";
@@ -438,6 +444,7 @@ pub enum PluginStartupTasks {
 pub struct AppServerRuntimeOptions {
     pub code_mode_host_transport: CodeModeHostTransport,
     pub plugin_startup_tasks: PluginStartupTasks,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     pub remote_control_startup_mode: RemoteControlStartupMode,
     pub install_shutdown_signal_handler: bool,
     pub psp: bool,
@@ -448,6 +455,7 @@ impl Default for AppServerRuntimeOptions {
         Self {
             code_mode_host_transport: CodeModeHostTransport::Local,
             plugin_startup_tasks: PluginStartupTasks::Start,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             remote_control_startup_mode: RemoteControlStartupMode::ResolvePersisted,
             install_shutdown_signal_handler: true,
             psp: false,
@@ -686,6 +694,7 @@ pub async fn run_main_with_transport_options(
             None => error!("{}", warning.summary),
         }
     }
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let remote_control_policy = if config
         .config_layer_stack
         .requirements()
@@ -697,9 +706,12 @@ pub async fn run_main_with_transport_options(
     } else {
         RemoteControlPolicy::Allowed
     };
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let remote_control_startup_mode = runtime_options.remote_control_startup_mode;
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let remote_control_explicitly_requested =
         remote_control_startup_mode == RemoteControlStartupMode::EnabledEphemeral;
+    #[cfg(not(feature = "tapfuture-minimal"))]
     if remote_control_explicitly_requested
         && remote_control_policy == RemoteControlPolicy::DisabledByRequirements
     {
@@ -715,12 +727,18 @@ pub async fn run_main_with_transport_options(
     let single_client_mode = matches!(&transport, AppServerTransport::Stdio);
     let graceful_signal_restart_enabled =
         runtime_options.install_shutdown_signal_handler && !single_client_mode;
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let mut app_server_client_name_rx = None;
 
     match &transport {
         AppServerTransport::Stdio => {
             let (stdio_client_name_tx, stdio_client_name_rx) = oneshot::channel::<String>();
-            app_server_client_name_rx = Some(stdio_client_name_rx);
+            #[cfg(not(feature = "tapfuture-minimal"))]
+            {
+                app_server_client_name_rx = Some(stdio_client_name_rx);
+            }
+            #[cfg(feature = "tapfuture-minimal")]
+            drop(stdio_client_name_rx);
             start_stdio_connection(
                 transport_event_tx.clone(),
                 &mut transport_accept_handles,
@@ -751,16 +769,28 @@ pub async fn run_main_with_transport_options(
     }
     drop(unix_socket_startup_lock);
 
+    #[cfg(feature = "tapfuture-minimal")]
+    if transport_accept_handles.is_empty() {
+        return Err(std::io::Error::new(
+            ErrorKind::InvalidInput,
+            "no transport configured; remote control is disabled in tapfuture-minimal",
+        ));
+    }
+
     let auth_manager =
         AuthManager::shared_from_config(&config, /*enable_codex_api_key_env*/ false).await;
 
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let remote_control_enabled = remote_control_policy == RemoteControlPolicy::Allowed
         && remote_control_explicitly_requested
         && state_db.is_some();
+    #[cfg(not(feature = "tapfuture-minimal"))]
     if remote_control_explicitly_requested && state_db.is_none() {
         error!("remote control disabled because sqlite state db is unavailable");
     }
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let no_local_transport = transport_accept_handles.is_empty();
+    #[cfg(not(feature = "tapfuture-minimal"))]
     if no_local_transport
         && remote_control_startup_mode != RemoteControlStartupMode::ResolvePersisted
         && !remote_control_enabled
@@ -777,6 +807,7 @@ pub async fn run_main_with_transport_options(
         ));
     }
 
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let (remote_control_accept_handle, remote_control_handle) = start_remote_control(
         RemoteControlStartConfig {
             remote_control_url: config.chatgpt_base_url.clone(),
@@ -791,6 +822,7 @@ pub async fn run_main_with_transport_options(
         remote_control_startup_mode,
     )
     .await?;
+    #[cfg(not(feature = "tapfuture-minimal"))]
     if no_local_transport
         && remote_control_startup_mode == RemoteControlStartupMode::ResolvePersisted
     {
@@ -817,6 +849,7 @@ pub async fn run_main_with_transport_options(
             ));
         }
     }
+    #[cfg(not(feature = "tapfuture-minimal"))]
     transport_accept_handles.push(remote_control_accept_handle);
 
     let outbound_handle = tokio::spawn(async move {
@@ -882,6 +915,7 @@ pub async fn run_main_with_transport_options(
             outgoing_tx,
             analytics_events_client.clone(),
         ));
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let initialize_notification_sender = outgoing_message_sender.clone();
         let outbound_control_tx = outbound_control_tx;
         let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
@@ -901,6 +935,7 @@ pub async fn run_main_with_transport_options(
             installation_id,
             code_mode_session_provider,
             rpc_transport: analytics_rpc_transport(&transport),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             remote_control_handle: Some(remote_control_handle.clone()),
             #[cfg(not(feature = "tapfuture-minimal"))]
             plugin_startup_tasks: runtime_options.plugin_startup_tasks,
@@ -909,7 +944,9 @@ pub async fn run_main_with_transport_options(
         let mut running_turn_count_rx = processor.subscribe_running_assistant_turn_count();
         let mut connections = HashMap::<ConnectionId, ConnectionState>::new();
         let mut connection_cleanup_tasks = ConnectionCleanupTasks::new();
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let mut remote_control_status_rx = remote_control_handle.status_receiver();
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let mut remote_control_status = remote_control_status_rx.borrow().clone();
         let transport_shutdown_token = transport_shutdown_token.clone();
         async move {
@@ -1061,6 +1098,7 @@ pub async fn run_main_with_transport_options(
                                                     connection_id,
                                                 )
                                                 .await;
+                                            #[cfg(not(feature = "tapfuture-minimal"))]
                                             initialize_notification_sender
                                                 .send_server_notification_to_connections(
                                                     &[connection_id],
@@ -1108,10 +1146,22 @@ pub async fn run_main_with_transport_options(
                         }
                     }
                     _ = connection_cleanup_tasks.reap_next() => {}
-                    changed = remote_control_status_rx.changed() => {
-                        if changed.is_err() {
+                    _remote_control_status_changed = async {
+                        #[cfg(not(feature = "tapfuture-minimal"))]
+                        {
+                            remote_control_status_rx.changed().await.is_ok()
+                        }
+                        #[cfg(feature = "tapfuture-minimal")]
+                        {
+                            std::future::pending::<bool>().await
+                        }
+                    } => {
+                        #[cfg(not(feature = "tapfuture-minimal"))]
+                        if !_remote_control_status_changed {
                             continue;
                         }
+                        #[cfg(not(feature = "tapfuture-minimal"))]
+                        {
                         let status = remote_control_status_rx.borrow().clone();
                         if remote_control_status == status {
                             continue;
@@ -1121,6 +1171,7 @@ pub async fn run_main_with_transport_options(
                         initialize_notification_sender
                             .send_server_notification(notification)
                             .await;
+                        }
                     }
                     created = thread_created_rx.recv(), if listen_for_threads => {
                         match created {

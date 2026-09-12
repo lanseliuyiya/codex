@@ -542,6 +542,7 @@ mod mcp_processor;
 #[cfg(not(feature = "tapfuture-minimal"))]
 mod plugins;
 mod process_exec_processor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod remote_control_processor;
 mod search;
 mod thread_enrichment;
@@ -570,6 +571,7 @@ pub(crate) use mcp_processor::McpRequestProcessor;
 #[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use plugins::PluginRequestProcessor;
 pub(crate) use process_exec_processor::ProcessExecRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use remote_control_processor::RemoteControlRequestProcessor;
 pub(crate) use search::SearchRequestProcessor;
 pub(crate) use thread_goal_processor::ThreadGoalRequestProcessor;

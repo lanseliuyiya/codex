@@ -61,6 +61,7 @@ struct AppServerArgs {
     disable_plugin_startup_tasks_for_tests: bool,
 
     /// Enable remote control for this app-server process without changing persistence.
+    #[cfg(not(feature = "tapfuture-minimal"))]
     #[arg(long = "remote-control", hide = true)]
     remote_control: bool,
 
@@ -70,6 +71,7 @@ struct AppServerArgs {
 }
 
 fn main() -> anyhow::Result<()> {
+    #[cfg(not(feature = "tapfuture-minimal"))]
     let remote_control_disabled = codex_app_server::take_remote_control_disabled_env();
     arg0_dispatch_or_else(move |arg0_paths: Arg0DispatchPaths| async move {
         let AppServerArgs {
@@ -81,6 +83,7 @@ fn main() -> anyhow::Result<()> {
             strict_config,
             #[cfg(all(debug_assertions, not(feature = "tapfuture-minimal")))]
             disable_plugin_startup_tasks_for_tests,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             remote_control,
             psp,
         } = AppServerArgs::parse();
@@ -93,21 +96,26 @@ fn main() -> anyhow::Result<()> {
         };
         let transport = listen;
         let auth = auth.try_into_settings()?;
-        let mut runtime_options = AppServerRuntimeOptions {
+        let runtime_options = AppServerRuntimeOptions {
             code_mode_host_transport: code_mode_host.into(),
             psp,
             ..Default::default()
         };
+        #[cfg(not(feature = "tapfuture-minimal"))]
+        let mut runtime_options = runtime_options;
         #[cfg(all(debug_assertions, not(feature = "tapfuture-minimal")))]
         if disable_plugin_startup_tasks_for_tests {
             runtime_options.plugin_startup_tasks = PluginStartupTasks::Skip;
         }
-        runtime_options.remote_control_startup_mode =
-            match (remote_control, remote_control_disabled) {
-                (true, _) => codex_app_server::RemoteControlStartupMode::EnabledEphemeral,
-                (false, true) => codex_app_server::RemoteControlStartupMode::DisabledEphemeral,
-                (false, false) => codex_app_server::RemoteControlStartupMode::ResolvePersisted,
-            };
+        #[cfg(not(feature = "tapfuture-minimal"))]
+        {
+            runtime_options.remote_control_startup_mode =
+                match (remote_control, remote_control_disabled) {
+                    (true, _) => codex_app_server::RemoteControlStartupMode::EnabledEphemeral,
+                    (false, true) => codex_app_server::RemoteControlStartupMode::DisabledEphemeral,
+                    (false, false) => codex_app_server::RemoteControlStartupMode::ResolvePersisted,
+                };
+        }
 
         run_main_with_transport_options(
             arg0_paths,
