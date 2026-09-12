@@ -465,6 +465,7 @@ async fn start_uninitialized(args: InProcessStartArgs) -> IoResult<InProcessClie
                 config: args.config,
                 config_manager,
                 environment_manager: args.environment_manager,
+                #[cfg(not(feature = "tapfuture-minimal"))]
                 feedback: args.feedback,
                 log_db: args.log_db,
                 state_db: args.state_db,
@@ -475,6 +476,7 @@ async fn start_uninitialized(args: InProcessStartArgs) -> IoResult<InProcessClie
                 code_mode_session_provider: None,
                 rpc_transport: AppServerRpcTransport::InProcess,
                 remote_control_handle: None,
+                #[cfg(not(feature = "tapfuture-minimal"))]
                 plugin_startup_tasks: crate::PluginStartupTasks::Start,
             }));
             let mut thread_created_rx = processor.thread_created_receiver();

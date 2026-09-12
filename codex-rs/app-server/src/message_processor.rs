@@ -25,17 +25,21 @@ use crate::outgoing_message::ConnectionRequestId;
 use crate::outgoing_message::OutgoingMessageSender;
 use crate::outgoing_message::RequestContext;
 use crate::request_processors::AccountRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::request_processors::AppsRequestProcessor;
 use crate::request_processors::CatalogRequestProcessor;
 use crate::request_processors::CommandExecRequestProcessor;
 use crate::request_processors::ConfigRequestProcessor;
 use crate::request_processors::EnvironmentRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::request_processors::FeedbackRequestProcessor;
 use crate::request_processors::FsRequestProcessor;
 use crate::request_processors::GitRequestProcessor;
 use crate::request_processors::InitializeRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::request_processors::MarketplaceRequestProcessor;
 use crate::request_processors::McpRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use crate::request_processors::PluginRequestProcessor;
 use crate::request_processors::ProcessExecRequestProcessor;
 use crate::request_processors::RemoteControlRequestProcessor;
@@ -71,6 +75,7 @@ use codex_code_mode::CodeModeSessionProvider;
 use codex_core::ThreadManager;
 use codex_core::config::Config;
 use codex_exec_server::EnvironmentManager;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_feedback::CodexFeedback;
 use codex_goal_extension::GoalService;
 use codex_home::CodexHomeUserInstructionsProvider;
@@ -87,6 +92,7 @@ use tokio::sync::broadcast;
 use tokio::sync::watch;
 use tokio::time::Duration;
 use tokio::time::timeout;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use tokio_util::sync::CancellationToken;
 use tracing::Instrument;
 
@@ -104,6 +110,7 @@ pub(crate) struct MessageProcessor {
     models_refresh_worker: ModelsRefreshWorker,
     skills_watcher: Arc<SkillsWatcher>,
     account_processor: AccountRequestProcessor,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     apps_processor: AppsRequestProcessor,
     catalog_processor: CatalogRequestProcessor,
     command_exec_processor: CommandExecRequestProcessor,
@@ -112,12 +119,15 @@ pub(crate) struct MessageProcessor {
     environment_processor: EnvironmentRequestProcessor,
     #[cfg(feature = "external-agent-migration")]
     external_agent_config_processor: ExternalAgentConfigRequestProcessor,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     feedback_processor: FeedbackRequestProcessor,
     fs_processor: FsRequestProcessor,
     git_processor: GitRequestProcessor,
     initialize_processor: InitializeRequestProcessor,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     marketplace_processor: MarketplaceRequestProcessor,
     mcp_processor: McpRequestProcessor,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     plugin_processor: PluginRequestProcessor,
     remote_control_processor: RemoteControlRequestProcessor,
     search_processor: SearchRequestProcessor,
@@ -211,6 +221,7 @@ pub(crate) struct MessageProcessorArgs {
     pub(crate) config: Arc<Config>,
     pub(crate) config_manager: ConfigManager,
     pub(crate) environment_manager: Arc<EnvironmentManager>,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     pub(crate) feedback: CodexFeedback,
     pub(crate) log_db: Option<LogDbLayer>,
     pub(crate) state_db: Option<StateDbHandle>,
@@ -221,6 +232,7 @@ pub(crate) struct MessageProcessorArgs {
     pub(crate) code_mode_session_provider: Option<Arc<dyn CodeModeSessionProvider>>,
     pub(crate) rpc_transport: AppServerRpcTransport,
     pub(crate) remote_control_handle: Option<RemoteControlHandle>,
+    #[cfg(not(feature = "tapfuture-minimal"))]
     pub(crate) plugin_startup_tasks: crate::PluginStartupTasks,
 }
 
@@ -235,6 +247,7 @@ impl MessageProcessor {
             config,
             config_manager,
             environment_manager,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             feedback,
             log_db,
             state_db,
@@ -245,6 +258,7 @@ impl MessageProcessor {
             code_mode_session_provider,
             rpc_transport,
             remote_control_handle,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             plugin_startup_tasks,
         } = args;
         let thread_state_manager = ThreadStateManager::new();
@@ -328,6 +342,7 @@ impl MessageProcessor {
         let thread_list_state_permit = Arc::new(Semaphore::new(/*permits*/ 1));
         let workspace_settings_cache =
             Arc::new(workspace_settings::WorkspaceSettingsCache::default());
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let app_list_shutdown_token = CancellationToken::new();
         let request_serialization_queues = RequestSerializationQueues::default();
         let config_processor = ConfigRequestProcessor::new(
@@ -336,6 +351,7 @@ impl MessageProcessor {
             thread_manager.clone(),
             analytics_events_client.clone(),
         );
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let on_effective_plugins_changed =
             crate::effective_plugin_change::effective_plugins_changed_callback(
                 auth_manager.clone(),
@@ -351,6 +367,7 @@ impl MessageProcessor {
             Arc::clone(&config),
             config_manager.clone(),
         );
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let apps_processor = AppsRequestProcessor::new(
             auth_manager.clone(),
             Arc::clone(&thread_manager),
@@ -379,6 +396,7 @@ impl MessageProcessor {
             outgoing.clone(),
             Arc::clone(&environment_manager_for_requests),
         );
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let feedback_processor = FeedbackRequestProcessor::new(
             auth_manager.clone(),
             Arc::clone(&thread_manager),
@@ -395,6 +413,7 @@ impl MessageProcessor {
             config_warnings.clone(),
             rpc_transport,
         );
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let marketplace_processor = MarketplaceRequestProcessor::new(
             Arc::clone(&config),
             config_manager.clone(),
@@ -406,6 +425,7 @@ impl MessageProcessor {
             outgoing.clone(),
             config_manager.clone(),
         );
+        #[cfg(not(feature = "tapfuture-minimal"))]
         let plugin_processor = PluginRequestProcessor::new(
             auth_manager.clone(),
             Arc::clone(&thread_manager),
@@ -457,6 +477,7 @@ impl MessageProcessor {
             thread_list_state_permit,
             Arc::clone(&skills_watcher),
         );
+        #[cfg(not(feature = "tapfuture-minimal"))]
         if matches!(plugin_startup_tasks, crate::PluginStartupTasks::Start) {
             // Keep plugin startup warmups aligned at app-server startup.
             let on_effective_plugins_changed =
@@ -499,6 +520,7 @@ impl MessageProcessor {
             models_refresh_worker,
             skills_watcher,
             account_processor,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             apps_processor,
             catalog_processor,
             command_exec_processor,
@@ -507,12 +529,15 @@ impl MessageProcessor {
             environment_processor,
             #[cfg(feature = "external-agent-migration")]
             external_agent_config_processor,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             feedback_processor,
             fs_processor,
             git_processor,
             initialize_processor,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             marketplace_processor,
             mcp_processor,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             plugin_processor,
             remote_control_processor,
             search_processor,
@@ -526,6 +551,7 @@ impl MessageProcessor {
 
     pub(crate) fn clear_runtime_references(&self) {
         self.account_processor.clear_external_auth();
+        #[cfg(not(feature = "tapfuture-minimal"))]
         self.apps_processor.shutdown();
         self.models_refresh_worker.shutdown();
         self.skills_watcher.shutdown();
@@ -1231,51 +1257,67 @@ impl MessageProcessor {
             ClientRequest::HooksList { params, .. } => {
                 self.catalog_processor.hooks_list(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::MarketplaceAdd { params, .. } => {
                 self.marketplace_processor.marketplace_add(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::MarketplaceRemove { params, .. } => {
                 self.marketplace_processor.marketplace_remove(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::MarketplaceUpgrade { params, .. } => {
                 self.marketplace_processor.marketplace_upgrade(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginList { params, .. } => {
                 self.plugin_processor.plugin_list(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginSearch { params, .. } => {
                 self.plugin_processor.plugin_search(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginInstalled { params, .. } => {
                 self.plugin_processor.plugin_installed(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginRead { params, .. } => {
                 self.plugin_processor.plugin_read(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginSkillRead { params, .. } => {
                 self.plugin_processor.plugin_skill_read(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginShareSave { params, .. } => {
                 self.plugin_processor.plugin_share_save(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginShareUpdateTargets { params, .. } => {
                 self.plugin_processor
                     .plugin_share_update_targets(params)
                     .await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginShareList { params, .. } => {
                 self.plugin_processor.plugin_share_list(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginShareCheckout { params, .. } => {
                 self.plugin_processor.plugin_share_checkout(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginShareDelete { params, .. } => {
                 self.plugin_processor.plugin_share_delete(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::AppsRead { params, .. } => self.apps_processor.apps_read(params).await,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::AppsList { params, .. } => {
                 self.apps_processor.apps_list(&request_id, params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::AppsInstalled { params, .. } => self
                 .apps_processor
                 .apps_installed(params)
@@ -1284,9 +1326,11 @@ impl MessageProcessor {
             ClientRequest::SkillsConfigWrite { params, .. } => {
                 self.catalog_processor.skills_config_write(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginInstall { params, .. } => {
                 self.plugin_processor.plugin_install(params).await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::PluginUninstall { params, .. } => {
                 self.plugin_processor.plugin_uninstall(params).await
             }
@@ -1488,9 +1532,32 @@ impl MessageProcessor {
                     .process_resize_pty(request_id.clone(), params)
                     .await
             }
+            #[cfg(not(feature = "tapfuture-minimal"))]
             ClientRequest::FeedbackUpload { params, .. } => {
                 self.feedback_processor.feedback_upload(params).await
             }
+            #[cfg(feature = "tapfuture-minimal")]
+            ClientRequest::MarketplaceAdd { .. }
+            | ClientRequest::MarketplaceRemove { .. }
+            | ClientRequest::MarketplaceUpgrade { .. }
+            | ClientRequest::PluginList { .. }
+            | ClientRequest::PluginSearch { .. }
+            | ClientRequest::PluginInstalled { .. }
+            | ClientRequest::PluginRead { .. }
+            | ClientRequest::PluginSkillRead { .. }
+            | ClientRequest::PluginShareSave { .. }
+            | ClientRequest::PluginShareUpdateTargets { .. }
+            | ClientRequest::PluginShareList { .. }
+            | ClientRequest::PluginShareCheckout { .. }
+            | ClientRequest::PluginShareDelete { .. }
+            | ClientRequest::AppsRead { .. }
+            | ClientRequest::AppsList { .. }
+            | ClientRequest::AppsInstalled { .. }
+            | ClientRequest::PluginInstall { .. }
+            | ClientRequest::PluginUninstall { .. }
+            | ClientRequest::FeedbackUpload { .. } => Err(crate::error_code::method_not_found(
+                "method is disabled in tapfuture-minimal",
+            )),
         };
 
         match result {

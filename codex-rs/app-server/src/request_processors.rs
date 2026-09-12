@@ -28,16 +28,6 @@ use codex_app_server_protocol::AddCreditsNudgeCreditType;
 use codex_app_server_protocol::AddCreditsNudgeEmailStatus;
 use codex_app_server_protocol::AdditionalContextEntry;
 use codex_app_server_protocol::AdditionalContextKind;
-use codex_app_server_protocol::AppListUpdatedNotification;
-use codex_app_server_protocol::AppSummary;
-use codex_app_server_protocol::AppTemplateSummary;
-use codex_app_server_protocol::AppTemplateUnavailableReason;
-use codex_app_server_protocol::AppsInstalledParams;
-use codex_app_server_protocol::AppsInstalledResponse;
-use codex_app_server_protocol::AppsListParams;
-use codex_app_server_protocol::AppsListResponse;
-use codex_app_server_protocol::AppsReadParams;
-use codex_app_server_protocol::AppsReadResponse;
 use codex_app_server_protocol::AskForApproval;
 use codex_app_server_protocol::AuthMode;
 use codex_app_server_protocol::CancelLoginAccountParams;
@@ -75,8 +65,6 @@ use codex_app_server_protocol::ExperimentalFeature as ApiExperimentalFeature;
 use codex_app_server_protocol::ExperimentalFeatureListParams;
 use codex_app_server_protocol::ExperimentalFeatureListResponse;
 use codex_app_server_protocol::ExperimentalFeatureStage as ApiExperimentalFeatureStage;
-use codex_app_server_protocol::FeedbackUploadParams;
-use codex_app_server_protocol::FeedbackUploadResponse;
 use codex_app_server_protocol::GetAccountParams;
 use codex_app_server_protocol::GetAccountRateLimitsResponse;
 use codex_app_server_protocol::GetAccountResponse;
@@ -94,6 +82,7 @@ use codex_app_server_protocol::HooksListParams;
 use codex_app_server_protocol::HooksListResponse;
 use codex_app_server_protocol::InitializeParams;
 use codex_app_server_protocol::InitializeResponse;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_app_server_protocol::InstalledApp;
 use codex_app_server_protocol::JSONRPCErrorError;
 use codex_app_server_protocol::ListMcpServerStatusParams;
@@ -103,14 +92,6 @@ use codex_app_server_protocol::LoginAccountResponse;
 use codex_app_server_protocol::LoginApiKeyParams;
 use codex_app_server_protocol::LoginAppBrand;
 use codex_app_server_protocol::LogoutAccountResponse;
-use codex_app_server_protocol::MarketplaceAddParams;
-use codex_app_server_protocol::MarketplaceAddResponse;
-use codex_app_server_protocol::MarketplaceInterface;
-use codex_app_server_protocol::MarketplaceRemoveParams;
-use codex_app_server_protocol::MarketplaceRemoveResponse;
-use codex_app_server_protocol::MarketplaceUpgradeErrorInfo;
-use codex_app_server_protocol::MarketplaceUpgradeParams;
-use codex_app_server_protocol::MarketplaceUpgradeResponse;
 use codex_app_server_protocol::McpResourceReadParams;
 use codex_app_server_protocol::McpResourceReadResponse;
 use codex_app_server_protocol::McpServerOauthLoginCompletedNotification;
@@ -129,41 +110,6 @@ use codex_app_server_protocol::ModelListResponse;
 use codex_app_server_protocol::PermissionProfileListParams;
 use codex_app_server_protocol::PermissionProfileListResponse;
 use codex_app_server_protocol::PermissionProfileSummary;
-use codex_app_server_protocol::PluginDetail;
-use codex_app_server_protocol::PluginInstallParams;
-use codex_app_server_protocol::PluginInstallResponse;
-use codex_app_server_protocol::PluginInstalledParams;
-use codex_app_server_protocol::PluginInstalledResponse;
-use codex_app_server_protocol::PluginInterface;
-use codex_app_server_protocol::PluginListMarketplaceKind;
-use codex_app_server_protocol::PluginListParams;
-use codex_app_server_protocol::PluginListResponse;
-use codex_app_server_protocol::PluginMarketplaceEntry;
-use codex_app_server_protocol::PluginReadParams;
-use codex_app_server_protocol::PluginReadResponse;
-use codex_app_server_protocol::PluginShareCheckoutParams;
-use codex_app_server_protocol::PluginShareCheckoutResponse;
-use codex_app_server_protocol::PluginShareContext;
-use codex_app_server_protocol::PluginShareDeleteParams;
-use codex_app_server_protocol::PluginShareDeleteResponse;
-use codex_app_server_protocol::PluginShareDiscoverability;
-use codex_app_server_protocol::PluginShareListItem;
-use codex_app_server_protocol::PluginShareListParams;
-use codex_app_server_protocol::PluginShareListResponse;
-use codex_app_server_protocol::PluginSharePrincipal;
-use codex_app_server_protocol::PluginSharePrincipalType;
-use codex_app_server_protocol::PluginShareSaveParams;
-use codex_app_server_protocol::PluginShareSaveResponse;
-use codex_app_server_protocol::PluginShareTarget;
-use codex_app_server_protocol::PluginShareUpdateDiscoverability;
-use codex_app_server_protocol::PluginShareUpdateTargetsParams;
-use codex_app_server_protocol::PluginShareUpdateTargetsResponse;
-use codex_app_server_protocol::PluginSkillReadParams;
-use codex_app_server_protocol::PluginSkillReadResponse;
-use codex_app_server_protocol::PluginSource;
-use codex_app_server_protocol::PluginSummary;
-use codex_app_server_protocol::PluginUninstallParams;
-use codex_app_server_protocol::PluginUninstallResponse;
 use codex_app_server_protocol::RateLimitResetCredit;
 use codex_app_server_protocol::RateLimitResetCreditStatus;
 use codex_app_server_protocol::RateLimitResetCreditsSummary;
@@ -178,6 +124,7 @@ use codex_app_server_protocol::SendAddCreditsNudgeEmailParams;
 use codex_app_server_protocol::SendAddCreditsNudgeEmailResponse;
 use codex_app_server_protocol::ServerNotification;
 use codex_app_server_protocol::ServerRequestResolvedNotification;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_app_server_protocol::SkillSummary;
 use codex_app_server_protocol::SkillsConfigWriteParams;
 use codex_app_server_protocol::SkillsConfigWriteResponse;
@@ -308,6 +255,33 @@ use codex_app_server_protocol::WindowsSandboxSetupStartParams;
 use codex_app_server_protocol::WindowsSandboxSetupStartResponse;
 use codex_app_server_protocol::WorkspaceMessage;
 use codex_app_server_protocol::WorkspaceMessageType;
+#[cfg(not(feature = "tapfuture-minimal"))]
+use codex_app_server_protocol::{
+    AppListUpdatedNotification, AppSummary, AppTemplateSummary, AppTemplateUnavailableReason,
+    AppsInstalledParams, AppsInstalledResponse, AppsListParams, AppsListResponse, AppsReadParams,
+    AppsReadResponse,
+};
+#[cfg(not(feature = "tapfuture-minimal"))]
+use codex_app_server_protocol::{FeedbackUploadParams, FeedbackUploadResponse};
+#[cfg(not(feature = "tapfuture-minimal"))]
+use codex_app_server_protocol::{
+    MarketplaceAddParams, MarketplaceAddResponse, MarketplaceInterface, MarketplaceRemoveParams,
+    MarketplaceRemoveResponse, MarketplaceUpgradeErrorInfo, MarketplaceUpgradeParams,
+    MarketplaceUpgradeResponse,
+};
+#[cfg(not(feature = "tapfuture-minimal"))]
+use codex_app_server_protocol::{
+    PluginDetail, PluginInstallParams, PluginInstallResponse, PluginInstalledParams,
+    PluginInstalledResponse, PluginInterface, PluginListMarketplaceKind, PluginListParams,
+    PluginListResponse, PluginMarketplaceEntry, PluginReadParams, PluginReadResponse,
+    PluginShareCheckoutParams, PluginShareCheckoutResponse, PluginShareContext,
+    PluginShareDeleteParams, PluginShareDeleteResponse, PluginShareDiscoverability,
+    PluginShareListItem, PluginShareListParams, PluginShareListResponse, PluginSharePrincipal,
+    PluginSharePrincipalType, PluginShareSaveParams, PluginShareSaveResponse, PluginShareTarget,
+    PluginShareUpdateDiscoverability, PluginShareUpdateTargetsParams,
+    PluginShareUpdateTargetsResponse, PluginSkillReadParams, PluginSkillReadResponse, PluginSource,
+    PluginSummary, PluginUninstallParams, PluginUninstallResponse,
+};
 use codex_arg0::Arg0DispatchPaths;
 use codex_backend_client::AddCreditsNudgeCreditType as BackendAddCreditsNudgeCreditType;
 use codex_backend_client::Client as BackendClient;
@@ -319,6 +293,7 @@ use codex_backend_client::RateLimitResetCreditDetails as BackendRateLimitResetCr
 use codex_backend_client::RateLimitResetCreditsDetails as BackendRateLimitResetCreditsDetails;
 use codex_backend_client::RequestError as BackendRequestError;
 use codex_backend_client::TokenUsageProfile;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_chatgpt::connectors;
 use codex_chatgpt::workspace_settings;
 use codex_config::CloudConfigBundleLoadError;
@@ -326,10 +301,12 @@ use codex_config::CloudConfigBundleLoadErrorCode;
 use codex_config::ConfigLayerStack;
 use codex_config::loader::project_trust_key;
 use codex_config::types::McpServerTransportConfig;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_connectors::AppInfo;
 use codex_core::CodexThread;
 use codex_core::CodexThreadSettingsOverrides;
 use codex_core::ForkSnapshot;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core::McpManager;
 use codex_core::NewThread;
 #[cfg(test)]
@@ -343,6 +320,7 @@ use codex_core::config::ConfigOverrides;
 use codex_core::config::NetworkProxyAuditMetadata;
 use codex_core::config::edit::ConfigEdit;
 use codex_core::config::edit::ConfigEditsBuilder;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core::connectors::AccessibleConnectorsStatus;
 use codex_core::exec::ExecCapturePolicy;
 use codex_core::exec::ExecExpiration;
@@ -358,28 +336,51 @@ use codex_core::windows_sandbox::WindowsSandboxLevelExt;
 use codex_core::windows_sandbox::WindowsSandboxSetupMode as CoreWindowsSandboxSetupMode;
 use codex_core::windows_sandbox::WindowsSandboxSetupRequest;
 use codex_core::windows_sandbox::sandbox_setup_is_complete;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::PluginInstallError as CorePluginInstallError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::PluginInstallRequest;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::PluginReadRequest;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::PluginUninstallError as CorePluginUninstallError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::PluginsManager;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::loader::load_plugin_apps;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::manifest::PluginManifestInterface;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace::MarketplaceError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace::MarketplacePluginSource;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace_add::MarketplaceAddError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace_add::MarketplaceAddRequest;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace_add::add_marketplace as add_marketplace_to_codex_home;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace_remove::MarketplaceRemoveError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace_remove::MarketplaceRemoveRequest as CoreMarketplaceRemoveRequest;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::marketplace_remove::remove_marketplace;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemoteMarketplace;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemoteMarketplaceSource;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemotePluginCatalogError;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemotePluginDetail as RemoteCatalogPluginDetail;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemotePluginServiceConfig;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemotePluginShareContext as RemoteCatalogPluginShareContext;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemotePluginShareSummary as RemoteCatalogPluginShareSummary;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use codex_core_plugins::remote::RemotePluginSummary as RemoteCatalogPluginSummary;
 use codex_exec_server::EnvironmentManager;
 use codex_exec_server::EnvironmentObservedStatus;
@@ -388,9 +389,8 @@ use codex_exec_server::LOCAL_FS;
 use codex_features::FEATURES;
 use codex_features::Feature;
 use codex_features::Stage;
-use codex_feedback::CodexFeedback;
-use codex_feedback::FeedbackAttachmentPath;
-use codex_feedback::FeedbackUploadOptions;
+#[cfg(not(feature = "tapfuture-minimal"))]
+use codex_feedback::{CodexFeedback, FeedbackAttachmentPath, FeedbackUploadOptions};
 use codex_git_utils::git_diff_to_remote;
 use codex_git_utils::resolve_root_git_project_for_trust;
 use codex_login::AuthManager;
@@ -508,6 +508,7 @@ use tokio::sync::broadcast;
 use tokio::sync::oneshot;
 use tokio::sync::watch;
 use tokio_util::sync::CancellationToken;
+#[cfg(not(feature = "tapfuture-minimal"))]
 use tokio_util::sync::DropGuard;
 use tokio_util::task::TaskTracker;
 use toml::Value as TomlValue;
@@ -521,19 +522,24 @@ use uuid::Uuid;
 use codex_app_server_protocol::ServerRequest;
 
 mod account_processor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod apps_processor;
 mod bedrock_auth;
 mod catalog_processor;
 mod command_exec_processor;
 mod config_processor;
 mod environment_processor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod feedback_doctor_report;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod feedback_processor;
 mod fs_processor;
 mod git_processor;
 mod initialize_processor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod marketplace_processor;
 mod mcp_processor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod plugins;
 mod process_exec_processor;
 mod remote_control_processor;
@@ -547,17 +553,21 @@ mod turn_processor;
 mod windows_sandbox_processor;
 
 pub(crate) use account_processor::AccountRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use apps_processor::AppsRequestProcessor;
 pub(crate) use catalog_processor::CatalogRequestProcessor;
 pub(crate) use command_exec_processor::CommandExecRequestProcessor;
 pub(crate) use config_processor::ConfigRequestProcessor;
 pub(crate) use environment_processor::EnvironmentRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use feedback_processor::FeedbackRequestProcessor;
 pub(crate) use fs_processor::FsRequestProcessor;
 pub(crate) use git_processor::GitRequestProcessor;
 pub(crate) use initialize_processor::InitializeRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use marketplace_processor::MarketplaceRequestProcessor;
 pub(crate) use mcp_processor::McpRequestProcessor;
+#[cfg(not(feature = "tapfuture-minimal"))]
 pub(crate) use plugins::PluginRequestProcessor;
 pub(crate) use process_exec_processor::ProcessExecRequestProcessor;
 pub(crate) use remote_control_processor::RemoteControlRequestProcessor;

@@ -83,6 +83,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 const SQLITE_RECOVERY_CONFIG_WARNING_SUMMARY: &str = "Codex rebuilt its local database.";
 
 mod analytics_utils;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod app_info;
 mod app_server_tracing;
 mod attestation;
@@ -97,6 +98,7 @@ mod connection_cleanup;
 mod connection_rpc_gate;
 mod current_time;
 mod dynamic_tools;
+#[cfg(not(feature = "tapfuture-minimal"))]
 mod effective_plugin_change;
 mod error_code;
 mod extensions;
@@ -889,6 +891,7 @@ pub async fn run_main_with_transport_options(
             config: Arc::new(config),
             config_manager,
             environment_manager,
+            #[cfg(not(feature = "tapfuture-minimal"))]
             feedback: feedback.clone(),
             log_db,
             state_db: state_db.clone(),
@@ -899,6 +902,7 @@ pub async fn run_main_with_transport_options(
             code_mode_session_provider,
             rpc_transport: analytics_rpc_transport(&transport),
             remote_control_handle: Some(remote_control_handle.clone()),
+            #[cfg(not(feature = "tapfuture-minimal"))]
             plugin_startup_tasks: runtime_options.plugin_startup_tasks,
         }));
         let mut thread_created_rx = processor.thread_created_receiver();
@@ -1325,9 +1329,12 @@ fn test_user_config_file_from_env() -> Option<std::path::PathBuf> {
 }
 
 fn loader_overrides_with_test_user_config_file(
-    mut loader_overrides: LoaderOverrides,
+    loader_overrides: LoaderOverrides,
     test_user_config_file: Option<std::path::PathBuf>,
 ) -> IoResult<LoaderOverrides> {
+    #[cfg(debug_assertions)]
+    let mut loader_overrides = loader_overrides;
+
     #[cfg(debug_assertions)]
     if let Some(path) = test_user_config_file {
         let path = AbsolutePathBuf::from_absolute_path(path).map_err(|err| {

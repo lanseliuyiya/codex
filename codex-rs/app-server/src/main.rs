@@ -3,6 +3,7 @@ use codex_app_server::AppServerCodeModeHostArgs;
 use codex_app_server::AppServerRuntimeOptions;
 use codex_app_server::AppServerTransport;
 use codex_app_server::AppServerWebsocketAuthArgs;
+#[cfg(all(debug_assertions, not(feature = "tapfuture-minimal")))]
 use codex_app_server::PluginStartupTasks;
 use codex_app_server::run_main_with_transport_options;
 use codex_arg0::Arg0DispatchPaths;
@@ -14,7 +15,9 @@ use std::path::PathBuf;
 
 // Debug-only test hook: lets integration tests point the server at a temporary
 // managed config file without writing to /etc.
+#[cfg(debug_assertions)]
 const MANAGED_CONFIG_PATH_ENV_VAR: &str = "CODEX_APP_SERVER_MANAGED_CONFIG_PATH";
+#[cfg(debug_assertions)]
 const DISABLE_MANAGED_CONFIG_ENV_VAR: &str = "CODEX_APP_SERVER_DISABLE_MANAGED_CONFIG";
 
 #[derive(Debug, Parser)]
@@ -53,7 +56,7 @@ struct AppServerArgs {
 
     /// Hidden debug-only test hook used by integration tests that spawn the
     /// production app-server binary.
-    #[cfg(debug_assertions)]
+    #[cfg(all(debug_assertions, not(feature = "tapfuture-minimal")))]
     #[arg(long = "disable-plugin-startup-tasks-for-tests", hide = true)]
     disable_plugin_startup_tasks_for_tests: bool,
 
@@ -76,7 +79,7 @@ fn main() -> anyhow::Result<()> {
             session_source,
             auth,
             strict_config,
-            #[cfg(debug_assertions)]
+            #[cfg(all(debug_assertions, not(feature = "tapfuture-minimal")))]
             disable_plugin_startup_tasks_for_tests,
             remote_control,
             psp,
@@ -95,7 +98,7 @@ fn main() -> anyhow::Result<()> {
             psp,
             ..Default::default()
         };
-        #[cfg(debug_assertions)]
+        #[cfg(all(debug_assertions, not(feature = "tapfuture-minimal")))]
         if disable_plugin_startup_tasks_for_tests {
             runtime_options.plugin_startup_tasks = PluginStartupTasks::Skip;
         }
