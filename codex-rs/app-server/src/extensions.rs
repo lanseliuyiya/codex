@@ -87,6 +87,7 @@ where
         http_client_factory,
     );
     codex_guardian::install(&mut builder, guardian_agent_spawner);
+    #[cfg(all(feature = "memories-extension", not(feature = "tapfuture-minimal")))]
     codex_memories_extension::install(&mut builder, codex_otel::global());
     #[cfg(all(feature = "plugin-mcp", not(feature = "tapfuture-minimal")))]
     {
