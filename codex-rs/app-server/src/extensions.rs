@@ -62,7 +62,7 @@ where
         analytics_events_client,
         thread_manager,
         goal_service,
-        environment_manager,
+        environment_manager: _environment_manager,
         executor_skill_provider,
         git_attribution_base_url,
         http_client_factory,
@@ -88,8 +88,11 @@ where
     );
     codex_guardian::install(&mut builder, guardian_agent_spawner);
     codex_memories_extension::install(&mut builder, codex_otel::global());
-    codex_mcp_extension::install(&mut builder);
-    codex_mcp_extension::install_executor_plugins(&mut builder, environment_manager);
+    #[cfg(all(feature = "plugin-mcp", not(feature = "tapfuture-minimal")))]
+    {
+        codex_mcp_extension::install(&mut builder);
+        codex_mcp_extension::install_executor_plugins(&mut builder, _environment_manager);
+    }
     codex_web_search_extension::install(&mut builder, auth_manager.clone());
     codex_image_generation_extension::install(&mut builder, auth_manager, |config: &Config| {
         Some(config.codex_home.clone())

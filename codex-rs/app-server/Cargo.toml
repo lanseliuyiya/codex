@@ -5,10 +5,11 @@ edition.workspace = true
 license.workspace = true
 
 [features]
-default = ["external-agent-migration", "feedback"]
+default = ["external-agent-migration", "feedback", "plugin-mcp"]
 tapfuture-minimal = ["codex-app-server-transport/tapfuture-minimal"]
 external-agent-migration = ["dep:codex-external-agent-migration"]
 feedback = ["dep:codex-feedback"]
+plugin-mcp = ["dep:codex-mcp-extension"]
 
 [[bin]]
 name = "codex-app-server"
@@ -76,7 +77,7 @@ codex-memories-extension = { workspace = true }
 codex-web-search-extension = { workspace = true }
 codex-memories-write = { workspace = true }
 codex-mcp = { workspace = true }
-codex-mcp-extension = { workspace = true }
+codex-mcp-extension = { workspace = true, optional = true }
 codex-model-provider = { workspace = true }
 codex-models-manager = { workspace = true }
 codex-protocol = { workspace = true }
